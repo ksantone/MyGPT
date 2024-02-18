@@ -1,10 +1,10 @@
 const OpenAI = require("openai");
 const express = require("express");
 const pool = require("./db");
-
+require('dotenv').config();
 
 const openai = new OpenAI({
-    apiKey: "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"
+    apiKey: process.env.OPENAI_API_KEY
 });
 
 const app = express();
@@ -15,7 +15,6 @@ app.use(cors());
 const port = 3080;
 
 app.post("/create_db", async(req, res) => {
-    console.log("In create database POST request.");
     try {
         await pool.query("CREATE TABLE IF NOT EXISTS messages ( id SERIAL PRIMARY KEY, title VARCHAR(255), role VARCHAR(255), content TEXT )");
         const results = await pool.query("SELECT * FROM messages");
@@ -38,12 +37,24 @@ app.post("/add_message", async(req, res) => {
 
     await pool.query("INSERT INTO messages (title, role, content) VALUES ($1, $2, $3)", [title, messages[messages.length-1]["role"], messages[messages.length-1]["content"]]);
 
-    const response = await openai.chat.completions.create({
+    let response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: messages,
-        max_tokens: 100,
+        max_tokens: 500,
         temperature: 0.5
     });
+
+    const response_length = response["choices"][0]["message"]["content"].length;
+
+    if (response_length > 500) {
+        max_tokens = response_length
+        response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: messages,
+            max_tokens: max_tokens,
+            temperature: 0.5
+        });
+    }
 
     await pool.query("INSERT INTO messages (title, role, content) VALUES ($1, $2, $3)", [title, response["choices"][0]["message"]["role"], response["choices"][0]["message"]["content"]]);
 

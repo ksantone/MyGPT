@@ -13,6 +13,7 @@
 }
 
 .sidemenu {
+  overflow-y: auto;
   width: 240px;
   padding: 10px;
   background-color: #202123;
@@ -51,14 +52,27 @@
 }
 
 .chatbox {
-  flex: 1;
   background-color: #343541;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.chat-log {
+  text-align: left;
+  overflow-y: auto;
+  flex: 1;
+  width: 100%;
+  padding: 0;
+  padding-bottom: 50px;
+  max-height: calc(100vh - 210px);
 }
 
 .chat-input-holder {
-  padding: 24px;
-  position: absolute;
+  padding: 12px;
+  position: relative;
+  height: 10px;
   bottom: 0; left: 0; right: 0;
 }
 
@@ -72,13 +86,6 @@
   border: none;
   outline: none;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.5);
-}
-
-.chat-log {
-  text-align: left;
-  overflow: scroll;
-  width: 100%;
-  padding: 0;
 }
 
 .chat-message {
